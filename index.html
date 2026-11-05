@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache">
+<title>SRR2 — Fungus BD Follow-up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Myanmar:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --blue:#1877f2;--blue-dk:#166fe5;--blue-lt:#e7f3ff;
+  --bg:#f0f2f5;--surface:#fff;--border:#dde1e7;--text:#050505;--muted:#65676b;--hover:#f2f3f5;
+  --green:#42b72a;--green-dk:#1a5c0c;--green-lt:#e6f4ea;
+  --red:#fa3e3e;--red-dk:#9b1c1c;--red-lt:#fdeaea;
+  --amber:#f7b928;--amber-dk:#856404;--amber-lt:#fff3cd;
+  --purple:#7c3aed;--purple-lt:#f3e8ff;
+  --font:'Inter','Noto Sans Myanmar',sans-serif;--r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;padding-bottom:40px}
+.my{font-family:'Noto Sans Myanmar',var(--font);font-weight:400;color:var(--muted);font-size:.85em}
+button{font-family:var(--font)}
+.nav{background:var(--blue);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(24,119,242,.3);gap:10px}
+.nav-logo{display:flex;align-items:center;gap:10px;color:#fff;min-width:0}
+.nav-ico{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.nav-name{font-size:15px;font-weight:700;line-height:1.2;white-space:nowrap}
+.nav-sub{font-size:10.5px;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);cursor:pointer;white-space:nowrap}
+.pill.ok{background:#e6f4ea;color:var(--green-dk);border-color:var(--green)}
+.pill.warn{background:var(--amber-lt);color:var(--amber-dk);border-color:var(--amber)}
+.pill.err{background:var(--red-lt);color:var(--red-dk);border-color:var(--red)}
+.clock{font-size:11px;color:rgba(255,255,255,.85);white-space:nowrap}
+.tabs{background:var(--surface);border-bottom:1px solid var(--border);display:flex;padding:0 12px;overflow-x:auto;position:sticky;top:56px;z-index:250}
+.tab{padding:10px 14px;border:none;background:transparent;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;line-height:1.25;text-align:center;position:relative}
+.tab .my{display:block;font-size:10px}
+.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.tab .badge{position:absolute;top:4px;right:2px;background:var(--red);color:#fff;font-size:9.5px;font-weight:800;border-radius:9px;padding:1px 5px}
+.main{max-width:1180px;margin:0 auto;padding:14px 12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 1px 2px rgba(0,0,0,.06);margin-bottom:12px;overflow:hidden}
+.card-h{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fafbfc}
+.card-t{font-size:14px;font-weight:800}
+.card-b{padding:12px 14px}
+.sp{flex:1}
+.lbl{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.03em;text-transform:uppercase;margin-bottom:3px;display:block}
+.lbl .my{text-transform:none;letter-spacing:0;font-size:10.5px}
+.in{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:14px;font-family:var(--font);color:var(--text);background:var(--bg);outline:none}
+.in:focus{border-color:var(--blue);background:#fff}
+textarea.in{resize:vertical;min-height:56px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.btn{padding:9px 16px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);line-height:1.2;text-decoration:none;display:inline-block;text-align:center}
+.btn:hover{background:var(--hover)}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.grn{background:var(--green);border-color:var(--green);color:#fff}
+.btn.red{background:#fff;border-color:var(--red);color:var(--red-dk)}
+.btn.redf{background:var(--red);border-color:var(--red);color:#fff}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn .my{color:inherit;opacity:.85}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{flex:1;min-width:54px;padding:7px 6px;border-radius:7px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:700;cursor:pointer;color:var(--muted);line-height:1.15}
+.seg button .my{display:block;font-size:9.5px;color:inherit}
+.seg button.on{background:var(--blue-lt);border-color:var(--blue);color:var(--blue)}
+.seg button.on.g{background:var(--green-lt);border-color:var(--green);color:var(--green-dk)}
+.seg button.on.r{background:var(--red-lt);border-color:var(--red);color:var(--red-dk)}
+.seg button.on.a{background:var(--amber-lt);border-color:var(--amber);color:var(--amber-dk)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;background:var(--hover);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
+.chip.b{background:var(--blue-lt);color:var(--blue);border-color:#9cc4f7}
+.chip.g{background:var(--green-lt);color:var(--green-dk);border-color:#9fd89a}
+.chip.r{background:var(--red-lt);color:var(--red-dk);border-color:#f3a5a5}
+.chip.a{background:var(--amber-lt);color:var(--amber-dk);border-color:#f2d27d}
+.prefill{background:var(--amber-lt);border:1px solid #f2d27d;color:var(--amber-dk);border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:600;margin-bottom:10px}
+.empty{color:var(--muted);text-align:center;padding:22px;font-size:13px}
+.note{font-size:11.5px;color:var(--muted)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center}
+.stat b{display:block;font-size:26px;font-weight:800;line-height:1.1}
+.stat span{font-size:10.5px;color:var(--muted);font-weight:700;line-height:1.25;display:block}
+.stat small{display:block;font-size:10.5px;color:var(--muted);margin-top:2px}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px}
+.bigc{border-radius:14px;padding:14px 16px;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.bigc b{display:block;font-size:38px;font-weight:800;line-height:1.05}
+.bigc span{font-size:12px;font-weight:700;opacity:.95;display:block;line-height:1.3}
+.bigc small{font-size:11px;opacity:.9}
+.topbar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.topbar .f-emp{flex:1;min-width:170px}
+.datebox{display:flex;gap:4px;align-items:center}
+.datebox .in{width:150px}
+.datebox .btn{padding:8px 10px}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px;margin-bottom:12px}
+.chart-box{position:relative;height:260px}
+.pbar{display:grid;grid-template-columns:118px 1fr 74px;gap:8px;align-items:center;padding:4px 0;font-size:12.5px}
+.pbar .bar{height:14px;background:#e4e6eb;border-radius:7px;overflow:hidden}
+.pbar .bar i{display:block;height:100%;background:var(--red);border-radius:7px}
+.pbar b{text-align:right}
+
+/* DAILY CHECK */
+.areas{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+.area{background:#fff;border:2px solid var(--border);border-radius:12px;overflow:hidden}
+.area.none{border-color:#9fd89a;background:#f7fdf6}
+.area.found{border-color:#f3a5a5}
+.area.open{grid-column:1/-1;border-color:var(--red)}
+.area.open .parts{grid-template-columns:repeat(6,1fr)}
+.animals{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:8px}
+.area-h{padding:10px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.area-h .nm{font-weight:800;font-size:15px;line-height:1.2}
+.area-b{padding:0 12px 12px}
+.yn{display:flex;gap:6px}
+.yn button{flex:1;padding:10px 6px;border-radius:9px;border:2px solid var(--border);background:#fff;font-weight:800;font-size:13px;cursor:pointer;line-height:1.15}
+.yn button .my{display:block;font-size:10px;font-weight:400;color:inherit}
+.yn button.on.no{background:var(--green);border-color:var(--green);color:#fff}
+.yn button.on.yes{background:var(--red);border-color:var(--red);color:#fff}
+.animal{border:1.5px solid #f3c2c2;background:#fffafa;border-radius:10px;padding:10px;margin-top:8px}
+.animal-h{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-weight:800}
+.parts{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.part{display:flex;align-items:center;gap:5px;padding:6px 6px;border:1.5px solid var(--border);border-radius:7px;background:#fff;font-size:12px;font-weight:700;cursor:pointer;line-height:1.1;user-select:none}
+.part input{width:16px;height:16px;flex-shrink:0;accent-color:var(--red)}
+.part .my{display:block;font-size:9.5px}
+.part.on{border-color:var(--red);background:var(--red-lt);color:var(--red-dk)}
+.gp-display{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:8px 10px;font-size:13px;font-weight:600;cursor:pointer;min-height:38px;line-height:1.3;text-align:left}
+.gp-display.empty{color:var(--muted);font-weight:500}
+.savebar{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap;align-items:center}
+
+/* HOLDING */
+.hold{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.hcard{background:#fff;border:2px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:7px}
+.hcard.better{border-color:#9fd89a}
+.hcard.worse{border-color:#f3a5a5}
+.hcard.done{opacity:.6}
+.hcard-h{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.hcard-h b{font-size:15px}
+.fu{display:flex;gap:3px;flex-wrap:wrap}
+.fu i{font-style:normal;font-size:10px;font-weight:800;border-radius:4px;padding:1px 4px;color:#fff}
+
+/* TABLES / MODALS */
+.tbl-wrap{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff}
+table.t th{background:#f5f6f8;font-size:10.5px;font-weight:800;color:var(--muted);padding:7px 9px;text-align:center;border-bottom:2px solid var(--border);white-space:nowrap;line-height:1.2}
+table.t th .my{display:block;font-weight:400;font-size:9.5px}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td{padding:6px 9px;border-bottom:1px solid #eef0f3;text-align:center;white-space:nowrap}
+table.t tr.tot td{background:#f5f6f8;font-weight:800;border-top:2px solid var(--border)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:14px 8px;overflow-y:auto}
+.ov.open{display:flex}
+.sheet{background:#fff;border-radius:12px;width:100%;max-width:760px;box-shadow:0 10px 40px rgba(0,0,0,.3);display:flex;flex-direction:column;max-height:calc(100vh - 28px)}
+.sheet-h{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.sheet-t{font-size:16px;font-weight:800;flex:1;line-height:1.2}
+.sheet-b{padding:12px 14px;overflow-y:auto}
+.sheet-f{display:flex;gap:8px;justify-content:flex-end;padding:10px 14px;border-top:1px solid var(--border);flex-wrap:wrap}
+.x{width:34px;height:34px;border-radius:50%;border:none;background:#f0f2f5;font-size:15px;cursor:pointer;flex-shrink:0}
+#gp-modal{z-index:700}
+.gp-group{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin:12px 0 6px}
+.gp-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px}
+.gp-item{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:4px 0;cursor:pointer}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(10px);padding:10px 18px;border-radius:9px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:900;pointer-events:none;background:#333;color:#fff;max-width:92vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--green)}.toast.err{background:var(--red)}
+@media(max-width:640px){
+  .g3,.g4{grid-template-columns:1fr 1fr}
+  .g2.stack{grid-template-columns:1fr}
+  .parts,.area.open .parts{grid-template-columns:repeat(3,1fr)}
+  .animals{grid-template-columns:1fr}
+  .nav-name{font-size:13.5px}
+  .clock{display:none}
+  .areas,.hold{grid-template-columns:1fr}
+  .charts{grid-template-columns:1fr}
+  .pbar{grid-template-columns:96px 1fr 64px}
+  .bigc b{font-size:30px}
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="nav-ico">🍄</div>
+    <div style="min-width:0">
+      <div class="nav-name">Fungus BD · SRR2</div>
+      <div class="nav-sub">ဘီဒီ မှို နောက်ဆက်တွဲ စောင့်ကြည့်ခြင်း — SRR2</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="pill" id="pill" onclick="syncNow()">⬤ …</span>
+    <span class="clock" id="clock"></span>
+  </div>
+</nav>
+<div class="tabs">
+  <button class="tab on" id="tab-dash" onclick="showTab('dash')">📊 Dashboard<span class="my">အနှစ်ချုပ်</span></button>
+  <button class="tab" id="tab-check" onclick="showTab('check')">✅ Daily Check<span class="my">နေ့စဉ် စစ်ဆေးမှု</span><span class="badge" id="check-badge" style="display:none"></span></button>
+  <button class="tab" id="tab-hold" onclick="showTab('hold')">🏥 Holding Area<span class="my">မှို ခွဲထားရာနေရာ</span><span class="badge" id="hold-badge" style="display:none;background:#7c3aed"></span></button>
+  <button class="tab" id="tab-hist" onclick="showTab('hist')">🕐 History<span class="my">မှတ်တမ်း</span></button>
+  <button class="tab" id="tab-setup" onclick="showTab('setup')">⚙️ Setup<span class="my">ပြင်ဆင်ရန်</span></button>
+</div>
+<div class="main">
+  <div id="setup-warn" class="prefill" style="display:none"></div>
+  <div id="page-dash"></div>
+  <div id="page-check" style="display:none"></div>
+  <div id="page-hold" style="display:none"></div>
+  <div id="page-hist" style="display:none"></div>
+  <div id="page-setup" style="display:none"></div>
+</div>
+
+<!-- ANIMAL EDITOR -->
+<div class="ov" id="case-ov" onclick="if(event.target===this) closeCase()">
+  <div class="sheet">
+    <div class="sheet-h"><div class="sheet-t" id="case-title"></div><button class="x" onclick="closeCase()">✕</button></div>
+    <div class="sheet-b" id="case-body"></div>
+    <div class="sheet-f">
+      <button class="btn red" onclick="deleteCase()">🗑 Delete · <span class="my">ဖျက်ရန်</span></button>
+      <span style="flex:1"></span>
+      <button class="btn" onclick="closeCase()">Cancel · <span class="my">မလုပ်တော့</span></button>
+      <button class="btn grn" onclick="saveCaseEdit()">💾 Save · <span class="my">သိမ်းရန်</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- GENE / MORPH PICKER (same list as the Animal ID app) -->
+<div class="ov" id="gp-modal" onclick="if(event.target===this) closeGenePicker()">
+  <div class="sheet" style="max-width:480px">
+    <div class="sheet-h"><div class="sheet-t">🧬 Select Genes<div class="my" style="font-size:12px">မျိုးရိုးလက္ခဏာများ ရွေးပါ</div></div><button class="x" onclick="closeGenePicker()">✕</button></div>
+    <div class="sheet-b" id="gp-body"></div>
+    <div class="sheet-f">
+      <button class="btn" onclick="clearGenePicker()">Clear · <span class="my">ဖျက်ရန်</span></button>
+      <button class="btn" onclick="closeGenePicker()">Cancel · <span class="my">မလုပ်တော့</span></button>
+      <button class="btn pri" onclick="confirmGenePicker()">✔ Apply · <span class="my">အတည်ပြု</span></button>
+    </div>
+  </div>
+</div>
+<datalist id="loc-list"></datalist>
+<div class="toast" id="toast"></div>
+<script>
+// ══════════════════════════════════════════════════════════════════
+// CONFIG + GLOBAL STATE — every global lives up here (declared before init)
+// ══════════════════════════════════════════════════════════════════
+// Paste the Apps Script /exec URL here (see Code.gs → SETUP):
+var SHEET_URL = 'https://script.google.com/macros/s/AKfycbxZRr58OPluEN_Ue_vKsubuMTg81Qat6qC5b5IWbGHD312p4CtmsGqZ41vf33xV7dCHJw/exec';
+var NEED_SCRIPT_VERSION = '2026-11-05a';
+var APP_VERSION = '2026-11-05a';
+var LS_KEY = 'srr_fungus_v1';
+var KEEP_DAYS = 45;              // this device keeps 45 days (+ every animal still in holding)
+
+// Body parts — check boxes
+var PARTS = [
+  {k:'HEAD',  en:'Head',         my:'ခေါင်း'},
+  {k:'LEYE',  en:'Left eye',     my:'ဘယ်မျက်လုံး'},
+  {k:'REYE',  en:'Right eye',    my:'ညာမျက်လုံး'},
+  {k:'BEYE',  en:'Both eyes',    my:'မျက်လုံး နှစ်ဖက်'},
+  {k:'NAIL',  en:'Fingernails',  my:'လက်သည်း'},
+  {k:'ARM',   en:'Arms',         my:'လက် (ရှေ့ခြေ)'},
+  {k:'LEG',   en:'Legs',         my:'ခြေ (နောက်ခြေ)'},
+  {k:'BELLY', en:'Belly',        my:'ဗိုက်'},
+  {k:'BUTT',  en:'Butt',         my:'တင်ပါး'},
+  {k:'BACK',  en:'Back',         my:'ကျော'},
+  {k:'MOUTH', en:'Mouth',        my:'ပါးစပ်'},
+  {k:'NOSE',  en:'Nose',         my:'နှာခေါင်း'}
+];
+var GROUPS = ['G1','G2','G3','G4','G5','G6','Unknown'];
+var GROUP_COLORS = {G1:'#1877f2',G2:'#0e9f6e',G3:'#7c3aed',G4:'#e8590c',G5:'#d6336c',G6:'#0891b2',Unknown:'#6b7280','':'#9ca3af'};
+var FU = { better:{en:'Better',my:'သက်သာ',c:'#1a7f37',ic:'👍'}, same:{en:'Same',my:'အတူတူ',c:'#6b7280',ic:'➖'}, worse:{en:'Worse',my:'ဆိုးလာ',c:'#c00',ic:'👎'} };
+
+// ── LOCATIONS: the same tubs / cages as the Animal ID app ──
+var INFR_ENCLOSURE_COUNTS = { 'INFR#1': 28, 'INFR#2': 22, 'INFR#3': 31, 'INFR#4': 45 };
+var LEFT_ROWS = ['23A']; for(var _n=22;_n>=6;_n--){ LEFT_ROWS.push(_n+'B'); LEFT_ROWS.push(_n+'A'); }
+var RIGHT_ROWS = ['46A']; for(var _n2=45;_n2>=29;_n2--){ RIGHT_ROWS.push(_n2+'B'); RIGHT_ROWS.push(_n2+'A'); }
+var TUBS_PER_ROW = 26;
+function tubsOf(rows){ var a=[]; rows.forEach(function(r){ for(var t=1;t<=TUBS_PER_ROW;t++) a.push(r+'-'+t); }); return a; }
+function infrOf(site){ var a=[]; for(var i=1;i<=INFR_ENCLOSURE_COUNTS[site];i++) a.push(site+'-'+i); return a; }
+function frOf(){ var a=[]; for(var n=1;n<=25;n++) ['A','B','C','D','E','F'].forEach(function(L){ a.push('FR#'+n+L); }); return a; }
+var BASE_AREAS = [
+  {id:'INFR1', name:'INFR#1 Room',  my:'အိမ်တွင်းအခန်း အမှတ် ၁', c:'#1877f2', locs:infrOf('INFR#1')},
+  {id:'INFR2', name:'INFR#2 Room',  my:'အိမ်တွင်းအခန်း အမှတ် ၂', c:'#0e9f6e', locs:infrOf('INFR#2')},
+  {id:'INFR3', name:'INFR#3 Room',  my:'အိမ်တွင်းအခန်း အမှတ် ၃', c:'#7c3aed', locs:infrOf('INFR#3')},
+  {id:'INFR4', name:'INFR#4 Room',  my:'အိမ်တွင်းအခန်း အမှတ် ၄', c:'#e8590c', locs:infrOf('INFR#4')},
+  {id:'WTL',   name:'White Tubs · Left (rows 6–23)',  my:'အဖြူရောင် ဗူး · ဘယ်ဘက်', c:'#64748b', locs:tubsOf(LEFT_ROWS)},
+  {id:'WTR',   name:'White Tubs · Right (rows 29–46)', my:'အဖြူရောင် ဗူး · ညာဘက်', c:'#475569', locs:tubsOf(RIGHT_ROWS)},
+  {id:'FR',    name:'FR# Outdoor Cages', my:'အပြင်ဘက် လှောင်အိမ်များ', c:'#b45309', locs:frOf()}
+];
+var EXTRA_COLORS = ['#d6336c','#0891b2','#a16207','#15803d','#9333ea','#be123c'];
+
+var COLOR_GROUPS = [
+  { id:'base',    label:'Base Morphs', colors:['FANCY (F)','RED (R)','BLUE BAR (BB)','LEATHERBACK (LB)','DUNNER (D)','GENETIC STRIPE (GS)','COLOR STRIPE (CS)','TRANS (T)','YELLOW (Y)','SNOW (SN)','PASTEL (P)','UC'] },
+  { id:'het',     label:'HET', colors:['HET ALBINO (HA)','HET DARK RED (HDR)','HET ZERO (HZ)','HET TRANS (HT)','HET WITBLIT (HW)','HET THUNDERBOLT (HTB)','HET PARADOX (HP)'] },
+  { id:'poss',    label:'POSS HET', colors:['POSS HET ZERO ALBINO (PHZA)','POSS HET WITBLIT ALBINO (PHWA)','POSS HET ALBINO (PHA)'] },
+  { id:'pure',    label:'Premium Morphs', colors:['ALBINO (A)','DARK RED (DR)','ZERO (Z)','WITBLIT (W)','THUNDERBOLT (TB)','MARBLE (MB)','AXANTHIC (AX)','ZERO TRANS (ZT)'] },
+  { id:'special', label:'Special', colors:['GHOST YELLOW (G/Y)','GHOST ORANGE (G/O)','SUPER BLUE (SB)','PHANTOM RED (PR)','CLOWN (CL)','FLAME (FL)','MAGMA (M)','CORAL (C)','PARADOX (PARA)','DOTS (DOTS)'] }
+];
+var ALL_COLORS = []; COLOR_GROUPS.forEach(function(g){ ALL_COLORS = ALL_COLORS.concat(g.colors); });
+
+var KINDS = ['check','case','settings'];
+var DB = { check:{}, case:{}, settings:{} };
+var PENDING = {}, FAILED = {}, LAST_ERR = null;
+var SERVER_TS = 0, LAST_MOD = '', scriptOutdated = false, pushing = false, storeFull = false;
+var curTab = 'dash', chkDate = '', DRAFT = {}, dashRange = '7', histF = {from:'', to:'', area:'all', st:'all'};
+var EXTRA = null;           // older records loaded from the Sheet for 1-year / old History views (memory only)
+var EDIT = null, _gpOnConfirm = null, charts = {};
+
+// ══════════════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════════════
+function pad(n){ return String(n).padStart(2,'0'); }
+function ymd(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function todayStr(){ return ymd(new Date()); }
+function nowHM(){ var d=new Date(); return pad(d.getHours())+':'+pad(d.getMinutes()); }
+function parseYmd(s){ var p=String(s).split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+function addDays(s, n){ var d=parseYmd(s); d.setDate(d.getDate()+n); return ymd(d); }
+function dayDiff(a, b){ var p=a.split('-'), q=b.split('-'); return Math.round((Date.UTC(+q[0],+q[1]-1,+q[2]) - Date.UTC(+p[0],+p[1]-1,+p[2]))/86400000); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function num(v){ var n=parseFloat(v); return isNaN(n)?0:n; }
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function uid(p){ return p + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function pct(a,b){ return b ? Math.round(a/b*1000)/10 : 0; }
+function niceDate(s){
+  if(!s) return '—';
+  var d=dayDiff(todayStr(), s);
+  if(d===0) return 'Today'; if(d===-1) return 'Yesterday';
+  return parseYmd(s).toLocaleDateString('en-GB',{weekday:'short', day:'numeric', month:'short'});
+}
+function localStorage_get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function emp(){ var e=document.getElementById('emp'); return e ? (e.value||'').trim() : (localStorage_get('srr_fungus_emp')||''); }
+function saveEmp(v){ try{ localStorage.setItem('srr_fungus_emp', v); }catch(e){} }
+function showToast(m, cls){ var t=document.getElementById('toast'); t.textContent=m; t.className='toast show '+(cls||''); clearTimeout(t._h); t._h=setTimeout(function(){ t.className='toast'; }, 2800); }
+function settings(){ var s=DB.settings.main; return s && !s.deleted ? s : {id:'main', areas:[], emps:[], hold:'Fungus Holding Area'}; }
+function holdName(){ return settings().hold || 'Fungus Holding Area'; }
+function areas(){
+  var hidden=settings().hidden||[];
+  return BASE_AREAS.filter(function(a){ return hidden.indexOf(a.id)<0; }).concat((settings().areas||[]).map(function(a,i){ return {id:a.id, name:a.name, my:a.my||'', c:EXTRA_COLORS[i%EXTRA_COLORS.length], locs:(a.locs||[])}; }));
+}
+function area(id){ var all=areas().concat(BASE_AREAS); for(var i=0;i<all.length;i++) if(all[i].id===id) return all[i]; return {id:id, name:id||'—', my:'', c:'#9ca3af', locs:[]}; }
+function areaOfLoc(loc){
+  var L=String(loc||'').trim().toUpperCase(); if(!L) return '';
+  var m=/^INFR#(\d)/.exec(L); if(m) return 'INFR'+m[1];
+  if(/^FR#/.test(L)) return 'FR';
+  m=/^(\d+)[AB]/.exec(L); if(m){ var n=+m[1]; return n<=23 ? 'WTL' : 'WTR'; }
+  return '';
+}
+function part(k){ for(var i=0;i<PARTS.length;i++) if(PARTS[i].k===k) return PARTS[i]; return {k:k,en:k,my:''}; }
+function sexIc(s){ return s==='M'?'♂':s==='F'?'♀':'?'; }
+function allCases(){
+  var m={}; Object.keys(DB.case).forEach(function(k){ m[k]=DB.case[k]; });
+  if(EXTRA) EXTRA.case.forEach(function(o){ if(!m[o.id] || num(o.updatedAt)>num(m[o.id].updatedAt)) m[o.id]=o; });
+  return Object.keys(m).map(function(k){ return m[k]; }).filter(function(c){ return !c.deleted; });
+}
+function allChecks(){
+  var m={}; Object.keys(DB.check).forEach(function(k){ m[k]=DB.check[k]; });
+  if(EXTRA) EXTRA.check.forEach(function(o){ if(!m[o.id] || num(o.updatedAt)>num(m[o.id].updatedAt)) m[o.id]=o; });
+  return Object.keys(m).map(function(k){ return m[k]; }).filter(function(c){ return !c.deleted; });
+}
+function lastFu(c){ var f=(c.fu||[]).slice().sort(function(a,b){ return a.d<b.d?-1:1; }); return f[f.length-1]||null; }
+function fuOn(c, d){ return (c.fu||[]).filter(function(f){ return f.d===d; })[0]||null; }
+function daysIn(c){ return dayDiff(c.date, c.st==='hold' ? todayStr() : (c.outD||todayStr())); }
+function holding(){ return allCases().filter(function(c){ return c.st==='hold'; }); }
+
+// ── GENE PICKER (same list as the Animal ID app) ──
+function canonGene(s){ var k=String(s||'').trim().toUpperCase(); for(var i=0;i<ALL_COLORS.length;i++) if(ALL_COLORS[i].toUpperCase()===k) return ALL_COLORS[i]; return String(s||'').trim(); }
+function openGenePicker(cur, cb){
+  _gpOnConfirm = cb;
+  var sel = String(cur||'').split('/').map(canonGene).filter(Boolean);
+  var known = {}; ALL_COLORS.forEach(function(c){ known[c]=1; });
+  var extra = sel.filter(function(s){ return !known[s]; });
+  var h='';
+  COLOR_GROUPS.forEach(function(g){
+    h+='<div class="gp-group">'+esc(g.label)+'</div><div class="gp-grid">';
+    g.colors.forEach(function(c){ h+='<label class="gp-item"><input type="checkbox" class="gp-cb" value="'+esc(c)+'"'+(sel.indexOf(c)>=0?' checked':'')+'> '+esc(c)+'</label>'; });
+    h+='</div>';
+  });
+  h+='<div class="gp-group">Other (type, comma-separated) · အခြား</div><input class="in" id="gp-custom" value="'+esc(extra.join(', '))+'" placeholder="e.g. a morph not on this list">';
+  document.getElementById('gp-body').innerHTML=h;
+  document.getElementById('gp-modal').classList.add('open');
+}
+function closeGenePicker(){ document.getElementById('gp-modal').classList.remove('open'); _gpOnConfirm=null; }
+function clearGenePicker(){ Array.prototype.forEach.call(document.querySelectorAll('.gp-cb'),function(e){ e.checked=false; }); document.getElementById('gp-custom').value=''; }
+function confirmGenePicker(){
+  var p = Array.prototype.map.call(document.querySelectorAll('.gp-cb:checked'), function(e){ return e.value; });
+  String(document.getElementById('gp-custom').value||'').split(',').map(function(s){return s.trim();}).filter(Boolean).forEach(function(s){ if(p.indexOf(s)<0) p.push(s); });
+  var cb=_gpOnConfirm; closeGenePicker(); if(cb) cb(p.join(' / '));
+}
+function morphBox(val, onclick){ return '<button type="button" class="gp-display'+(val?'':' empty')+'" onclick="'+onclick+'">'+(val?esc(val):'— tap to select genes · ရွေးပါ —')+'</button>'; }
+
+// ══════════════════════════════════════════════════════════════════
+// LOCAL STORAGE — memory first; the Sheet is the master copy
+// ══════════════════════════════════════════════════════════════════
+function loadLocal(){
+  try{ var d=JSON.parse(localStorage.getItem(LS_KEY)||'null'); if(d && d.DB){ DB=d.DB; PENDING=d.PENDING||{}; SERVER_TS=d.SERVER_TS||0; DRAFT=d.DRAFT||{}; } }catch(e){}
+  KINDS.forEach(function(k){ if(!DB[k]) DB[k]={}; });
+}
+function persist(){
+  var cut=addDays(todayStr(), -KEEP_DAYS);
+  Object.keys(DB.check).forEach(function(k){ if(DB.check[k].date<cut && !PENDING['check|'+k]) delete DB.check[k]; });
+  Object.keys(DB.case).forEach(function(k){ var c=DB.case[k]; if(c.date<cut && c.st!=='hold' && (c.outD||'')<cut && !PENDING['case|'+k]) delete DB.case[k]; });
+  try{ localStorage.setItem(LS_KEY, JSON.stringify({DB:DB, PENDING:PENDING, SERVER_TS:SERVER_TS, DRAFT:DRAFT})); storeFull=false; }
+  catch(e){
+    storeFull=true;
+    try{ var o={check:{},case:{},settings:DB.settings}; Object.keys(PENDING).forEach(function(pk){ var i=pk.indexOf('|'), k=pk.slice(0,i), id=pk.slice(i+1); if(DB[k]&&DB[k][id]) o[k][id]=DB[k][id]; });
+      localStorage.setItem(LS_KEY, JSON.stringify({DB:o, PENDING:PENDING, SERVER_TS:0, DRAFT:DRAFT})); }catch(e2){}
+  }
+}
+function saveRecord(kind, o){
+  o.updatedAt=Date.now(); if(!o.by) o.by=emp();
+  DB[kind][o.id]=o; PENDING[kind+'|'+o.id]=true;
+  if(EXTRA){ EXTRA[kind]=EXTRA[kind]||[]; EXTRA[kind]=EXTRA[kind].filter(function(x){ return x.id!==o.id; }); }
+  persist(); pushPending();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SYNC — never gets stuck on one bad record; shows the real reason
+// ══════════════════════════════════════════════════════════════════
+function setPill(txt,cls){ var p=document.getElementById('pill'); p.textContent='⬤ '+txt; p.className='pill '+(cls||''); }
+function pillState(){
+  var n=Object.keys(PENDING).length;
+  if(!SHEET_URL) setPill('Not connected · '+n+' on device','warn');
+  else if(scriptOutdated) setPill('Sheet script old','err');
+  else if(LAST_ERR) setPill('Not saving · '+n+' waiting','err');
+  else if(n) setPill(n+' not sent · မပို့ရသေး','warn');
+  else setPill('Live ✓ '+nowHM(),'ok');
+}
+function apiErr(kind, msg){ var e=new Error(msg); e.kind=kind; return e; }
+function api(body){
+  var q=JSON.stringify(body);
+  var url=SHEET_URL+'?payload='+encodeURIComponent(q)+'&t='+Date.now();
+  var p = url.length<7000 ? fetch(url,{method:'GET'}) : fetch(SHEET_URL,{method:'POST',body:q});
+  return p.catch(function(){ throw apiErr('net', navigator.onLine===false ? 'No internet on this device' : 'Could not reach the Google Sheet script'); })
+  .then(function(r){ return r.text(); }).then(function(t){
+    var j; try{ j=JSON.parse(t); }catch(e){
+      var low=String(t||'').toLowerCase();
+      if(/sign in|accounts\.google|servicelogin/.test(low)) throw apiErr('html','Google asked for a sign-in — the deployment must be "Who has access: Anyone"');
+      throw apiErr('html','The Sheet script replied with an error page, not data');
+    }
+    if(!j.version || String(j.version)<NEED_SCRIPT_VERSION){ scriptOutdated=true; throw apiErr('old','Sheet script is out of date'); }
+    scriptOutdated=false;
+    if(!j.ok) throw apiErr('server', j.error||'Sheet error');
+    if(LAST_ERR && LAST_ERR.kind!=='server'){ LAST_ERR=null; hideProblem(); }
+    return j;
+  });
+}
+function pushPending(){
+  if(!SHEET_URL||pushing){ pillState(); return; }
+  var now=Date.now(), keys=Object.keys(PENDING).filter(function(k){ return !FAILED[k] || now-FAILED[k].at>300000; });
+  if(!keys.length){ pillState(); return; }
+  pushing=true; setPill('Saving… · သိမ်းနေ','warn');
+  var pk=keys[0], i=pk.indexOf('|'), kind=pk.slice(0,i), id=pk.slice(i+1), obj=DB[kind][id];
+  if(!obj){ delete PENDING[pk]; pushing=false; persist(); return pushPending(); }
+  var sentAt=obj.updatedAt;
+  api({action:'save', kind:kind, obj:obj}).then(function(){
+    if(DB[kind][id] && DB[kind][id].updatedAt===sentAt) delete PENDING[pk];
+    delete FAILED[pk];
+    if(LAST_ERR && LAST_ERR.kind==='server' && !Object.keys(FAILED).length){ LAST_ERR=null; hideProblem(); }
+    persist(); pushing=false; pushPending();
+  }).catch(function(err){
+    pushing=false;
+    if(err.kind==='server'){ FAILED[pk]={msg:err.message, at:Date.now()}; LAST_ERR={kind:'server', msg:err.message, at:Date.now()}; showProblem(); return pushPending(); }
+    LAST_ERR={kind:err.kind||'net', msg:err.message, at:Date.now()}; showProblem(); pillState();
+  });
+}
+var FIX_TXT = {
+  net:'Check the Wi-Fi / mobile data. If the internet works, open the test link — it should show text starting with {"ok".',
+  html:'Apps Script → Deploy → Manage deployments → ✎ Edit → Who has access: <b>Anyone</b> → Version: <b>New version</b> → Deploy. Do NOT make a "New deployment".',
+  old:'Paste the latest Code.gs, Save, then Deploy → Manage deployments → ✎ Edit → New version → Deploy.',
+  server:'The Sheet refused one record — the rest keep saving. Send Claude a screenshot of this bar.'
+};
+function showProblem(){
+  if(!LAST_ERR) return;
+  var n=Object.keys(PENDING).length, el=document.getElementById('setup-warn');
+  el.className='prefill problem';
+  el.innerHTML='<b>⚠️ Not saving to the Google Sheet · Google Sheet သို့ မသိမ်းနိုင်ပါ</b><br>'+esc(LAST_ERR.msg)+' · '+n+' waiting on this device (kept safe) · <span class="my">ဤဖုန်းတွင် သိမ်းထားသည်</span>'+
+    '<div style="margin:6px 0;font-weight:500">'+FIX_TXT[LAST_ERR.kind||'net']+'</div><div class="chips"><button class="btn sm pri" onclick="syncNow()">🔄 Try again · ထပ်ကြိုးစား</button>'+
+    '<a class="btn sm" target="_blank" rel="noopener" href="'+esc(SHEET_URL)+'?payload=%7B%22action%22%3A%22ping%22%7D">🔗 Open test link</a></div>';
+  el.style.display='block';
+}
+function hideProblem(){ var el=document.getElementById('setup-warn'); if(el.classList.contains('problem')){ el.style.display='none'; el.classList.remove('problem'); } }
+function mergeList(res){
+  var changed=0;
+  KINDS.forEach(function(kind){
+    (res[kind]||[]).forEach(function(o){
+      if(!o || !o.id || PENDING[kind+'|'+o.id]) return;
+      var l=DB[kind][o.id];
+      if(!l || num(o.updatedAt)>num(l.updatedAt)){ DB[kind][o.id]=o; changed++; }
+    });
+  });
+  if(res.now) SERVER_TS=res.now; if(res.lastMod) LAST_MOD=res.lastMod;
+  return changed;
+}
+function pull(){
+  if(!SHEET_URL){ pillState(); return Promise.resolve(); }
+  var first=!SERVER_TS;
+  var p = first ? api({action:'list', days:KEEP_DAYS}) : api({action:'ping'}).then(function(j){ if(j.lastMod===LAST_MOD) return null; return api({action:'list', since:SERVER_TS-60000}); });
+  return p.then(function(res){
+    if(!res){ pillState(); return; }
+    var ch=mergeList(res); persist();
+    if(ch){ refreshAfterPull(); if(!first) showToast('🔄 '+ch+' update'+(ch>1?'s':'')+' from other devices · ဒေတာအသစ်'); }
+    pillState(); pushPending();
+  }).catch(function(e){ LAST_ERR={kind:e.kind||'net', msg:e.message, at:Date.now()}; showProblem(); pillState(); });
+}
+function refreshAfterPull(){
+  if(EDIT){ updBadges(); return; }
+  if(curTab==='check' && document.querySelector('#page-check input:focus, #page-check textarea:focus')){ updBadges(); return; }
+  refresh();
+}
+function syncNow(){ if(!SHEET_URL){ showSetupWarn(); return; } pull(); pushPending(); }
+function showSetupWarn(){
+  var el=document.getElementById('setup-warn');
+  el.innerHTML='⚠️ Not connected to Google Sheets yet — everything is kept on this device only. Paste the Apps Script /exec link into <b>SHEET_URL</b> in index.html. · Google Sheet မချိတ်ရသေးပါ';
+  el.style.display='block';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════════════════
+var TABS=['dash','check','hold','hist','setup'];
+function showTab(t){
+  curTab=t;
+  TABS.forEach(function(x){ document.getElementById('tab-'+x).classList.toggle('on', x===t); document.getElementById('page-'+x).style.display = x===t?'':'none'; });
+  try{ localStorage.setItem('srr_fungus_tab', t); }catch(e){}
+  refresh(); window.scrollTo(0,0);
+}
+function refresh(){
+  if(curTab==='dash') renderDash();
+  else if(curTab==='check') renderCheck();
+  else if(curTab==='hold') renderHold();
+  else if(curTab==='hist') renderHist();
+  else if(curTab==='setup') renderSetup();
+  updBadges();
+}
+function updBadges(){
+  var d=todayStr(), done={}; allChecks().forEach(function(c){ if(c.date===d) done[c.area]=1; });
+  var left=areas().filter(function(a){ return !done[a.id]; }).length;
+  var b=document.getElementById('check-badge'); b.style.display=left?'':'none'; b.textContent=left;
+  var h=holding().length, hb=document.getElementById('hold-badge'); hb.style.display=h?'':'none'; hb.textContent=h;
+}
+function stat(v,l,col,small){ return '<div class="stat"><b'+(col?' style="color:'+col+'"':'')+'>'+v+'</b><span>'+l+'</span>'+(small?'<small>'+small+'</small>':'')+'</div>'; }
+function bigc(v,l,bg,small){ return '<div class="bigc" style="background:'+bg+'"><b>'+v+'</b><span>'+l+'</span>'+(small?'<small>'+small+'</small>':'')+'</div>'; }
+function empField(){
+  return '<div class="f-emp"><span class="lbl">Your name · <span class="my">သင့်နာမည်</span></span><input class="in" id="emp" list="emp-list" placeholder="Your name · နာမည်" value="'+esc(localStorage_get('srr_fungus_emp')||'')+'" oninput="saveEmp(this.value)">'+
+    '<datalist id="emp-list">'+(settings().emps||[]).map(function(e){ return '<option value="'+esc(e)+'">'; }).join('')+'</datalist></div>';
+}
+function needEmp(){ var n=emp(); if(n) return n; showToast('Type your name first · နာမည် အရင်ရိုက်ပါ','err'); var e=document.getElementById('emp'); if(e) e.focus(); return ''; }
+
+// ══════════════════════════════════════════════════════════════════
+// 📊 DASHBOARD
+// ══════════════════════════════════════════════════════════════════
+var DRANGES=[{k:'1',l:'Today',my:'ယနေ့'},{k:'7',l:'7 days',my:'၇ ရက်'},{k:'30',l:'30 days · month',my:'၁ လ'},{k:'365',l:'1 year',my:'၁ နှစ်'}];
+function setRange(k){
+  dashRange=k;
+  if(+k>KEEP_DAYS && SHEET_URL && (!EXTRA || EXTRA.from>addDays(todayStr(),-(+k-1)))){
+    renderDash(true);
+    api({action:'list', from:addDays(todayStr(),-(+k-1)), to:todayStr()}).then(function(res){
+      EXTRA={from:addDays(todayStr(),-(+k-1)), case:res.case||[], check:res.check||[]}; renderDash();
+    }).catch(function(e){ showToast('⚠️ Could not load the year from the Sheet — showing what this device has','err'); renderDash(); });
+    return;
+  }
+  renderDash();
+}
+function computeStats(from, to){
+  var C=allCases(), K=allChecks();
+  var found=C.filter(function(c){ return c.date>=from && c.date<=to; });
+  var S={found:found, n:found.length, M:0, F:0, U:0, w:[], parts:{}, area:{}, grp:{}, loc:{}, morph:{}};
+  found.forEach(function(c){
+    if(c.sex==='M') S.M++; else if(c.sex==='F') S.F++; else S.U++;
+    if(num(c.w)>0) S.w.push(num(c.w));
+    (c.parts||[]).forEach(function(p){ S.parts[p]=(S.parts[p]||0)+1; });
+    S.area[c.area]=(S.area[c.area]||0)+1;
+    var g=c.grp||'Unknown'; S.grp[g]=(S.grp[g]||0)+1;
+    if(c.loc) S.loc[c.loc]=(S.loc[c.loc]||0)+1;
+    String(c.morph||'UC').split('/').map(function(x){ return x.trim(); }).filter(String).forEach(function(m){ S.morph[m]=(S.morph[m]||0)+1; });
+  });
+  S.avgW = S.w.length ? Math.round(S.w.reduce(function(a,b){return a+b;},0)/S.w.length) : null;
+  // outcomes in range
+  S.rec=C.filter(function(c){ return c.st==='rec' && c.outD>=from && c.outD<=to; });
+  S.died=C.filter(function(c){ return c.st==='died' && c.outD>=from && c.outD<=to; });
+  S.better=C.filter(function(c){ return (c.fu||[]).some(function(f){ return f.s==='better' && f.d>=from && f.d<=to; }); });
+  S.fuCases=C.filter(function(c){ return (c.fu||[]).some(function(f){ return f.d>=from && f.d<=to; }); });
+  S.worse=C.filter(function(c){ return (c.fu||[]).some(function(f){ return f.s==='worse' && f.d>=from && f.d<=to; }); });
+  S.recRate = pct(S.rec.length, S.rec.length+S.died.length);
+  var rd=S.rec.map(daysIn); S.avgRecDays = rd.length ? Math.round(rd.reduce(function(a,b){return a+b;},0)/rd.length*10)/10 : null;
+  // area checks
+  var ck=K.filter(function(c){ return c.date>=from && c.date<=to; });
+  S.checks=ck.length; S.checksFound=ck.filter(function(c){ return c.found; }).length;
+  // series (days, or months for > 62 days)
+  var days=dayDiff(from,to)+1, byMonth=days>62, buckets=[], idx={};
+  if(byMonth){ var m=from.slice(0,7); while(m<=to.slice(0,7)){ idx[m]=buckets.length; buckets.push({k:m, l:parseYmd(m+'-01').toLocaleDateString('en-GB',{month:'short',year:'2-digit'}), f:0, r:0, d:0, h:0, end: m===to.slice(0,7)?to:addDays(ymd(new Date(+m.slice(0,4), +m.slice(5,7), 1)),-1)}); var dd=new Date(+m.slice(0,4), +m.slice(5,7), 1); m=ymd(dd).slice(0,7); } }
+  else for(var i=0;i<days;i++){ var d=addDays(from,i); idx[d]=buckets.length; buckets.push({k:d, l:parseYmd(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}), f:0, r:0, d:0, h:0, end:d}); }
+  function bk(d){ return idx[byMonth ? d.slice(0,7) : d]; }
+  found.forEach(function(c){ var b=bk(c.date); if(b!=null) buckets[b].f++; });
+  S.rec.forEach(function(c){ var b=bk(c.outD); if(b!=null) buckets[b].r++; });
+  S.died.forEach(function(c){ var b=bk(c.outD); if(b!=null) buckets[b].d++; });
+  buckets.forEach(function(b){ b.h=C.filter(function(c){ return c.date<=b.end && (c.st==='hold' || (c.outD && c.outD>b.end)); }).length; });
+  S.series=buckets; S.byMonth=byMonth;
+  return S;
+}
+function renderDash(loading){
+  var el=document.getElementById('page-dash'), t=todayStr(), from=addDays(t,-(+dashRange-1));
+  var S=computeStats(from,t), H=holding(), today=computeStats(t,t);
+  var done={}; allChecks().forEach(function(c){ if(c.date===t) done[c.area]=c; });
+  var A=areas(), checked=A.filter(function(a){ return done[a.id]; }).length;
+  var rl=DRANGES.filter(function(r){ return r.k===dashRange; })[0];
+  var h='<div class="card"><div class="card-b" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="seg" style="flex:1;min-width:280px">'+
+    DRANGES.map(function(r){ return '<button class="'+(dashRange===r.k?'on':'')+'" onclick="setRange(\''+r.k+'\')">'+r.l+'<span class="my">'+r.my+'</span></button>'; }).join('')+'</div>'+
+    '<span class="chip">'+(dashRange==='1'?niceDate(t):niceDate(from)+' → '+niceDate(t))+'</span>'+(loading?'<span class="chip a">Loading from Sheet… · ဆွဲယူနေ</span>':'')+
+    (+dashRange>KEEP_DAYS && !EXTRA ? '<span class="chip a">This device has '+KEEP_DAYS+' days — connect the Sheet for the full year</span>' : '')+'</div></div>';
+  // TODAY banner
+  h+='<div class="big">'+
+    bigc(S.n,'🍄 Fungus found · '+rl.l+'<br><span class="my" style="color:#fff">မှို တွေ့ရှိ</span>','linear-gradient(135deg,#e02424,#b91c1c)', S.M+' ♂ · '+S.F+' ♀ · '+S.U+' ?')+
+    bigc(H.length,'🏥 In '+esc(holdName())+' now<br><span class="my" style="color:#fff">ယခု ခွဲထားသည်</span>','linear-gradient(135deg,#7c3aed,#5b21b6)', today.n+' new today')+
+    bigc(S.better.length,'👍 Better · '+rl.l+'<br><span class="my" style="color:#fff">သက်သာလာ</span>','linear-gradient(135deg,#16a34a,#15803d)', pct(S.better.length, S.fuCases.length)+'% of animals followed up')+
+    bigc(S.rec.length,'✅ Recovered · returned<br><span class="my" style="color:#fff">ပျောက်ကင်း</span>','linear-gradient(135deg,#0891b2,#0e7490)', 'Recovery rate '+S.recRate+'%'+(S.avgRecDays!=null?' · avg '+S.avgRecDays+' days':''))+
+    bigc(S.died.length,'💀 Died · '+rl.l+'<br><span class="my" style="color:#fff">သေဆုံး</span>','linear-gradient(135deg,#475569,#334155)', S.rec.length+S.died.length ? pct(S.died.length,S.rec.length+S.died.length)+'% of outcomes' : '')+
+  '</div>';
+  h+='<div class="strip">'+
+    stat(checked+' / '+A.length,'Areas checked today · <span class="my">ယနေ့ စစ်ပြီး</span>', checked>=A.length?'#1a7f37':'#e8590c')+
+    stat(today.n,'Found today · <span class="my">ယနေ့ တွေ့</span>', today.n?'#c00':'#1a7f37')+
+    stat(S.avgW==null?'—':S.avgW+' g','Avg weight · <span class="my">ပျမ်းမျှ အလေးချိန်</span>')+
+    stat(pct(S.checksFound,S.checks)+'%','Checks with fungus · <span class="my">မှိုတွေ့သည့် စစ်ဆေးမှု</span>','', S.checksFound+' of '+S.checks+' area checks')+
+    stat(S.worse.length,'Got worse · <span class="my">ဆိုးလာ</span>', S.worse.length?'#c00':'')+
+  '</div>';
+  // charts
+  h+='<div class="charts">'+
+    '<div class="card" style="grid-column:1/-1"><div class="card-h"><span class="card-t">📈 Found, recovered &amp; holding area '+(S.byMonth?'by month':'by day')+' · <span class="my">တွေ့ရှိ / ပျောက်ကင်း / ခွဲထား</span></span></div><div class="card-b"><div class="chart-box"><canvas id="ch-series"></canvas></div></div></div>'+
+    '<div class="card"><div class="card-h"><span class="card-t">🦎 Where on the body · <span class="my">ခန္ဓာကိုယ် နေရာ</span></span><span class="sp"></span><span class="note">% of animals found</span></div><div class="card-b">'+partBars(S)+'</div></div>'+
+    '<div class="card"><div class="card-h"><span class="card-t">📍 By area · <span class="my">နေရာအလိုက်</span></span></div><div class="card-b"><div class="chart-box"><canvas id="ch-area"></canvas></div></div></div>'+
+    '<div class="card"><div class="card-h"><span class="card-t">👥 By group · <span class="my">အုပ်စုအလိုက်</span></span></div><div class="card-b"><div class="chart-box"><canvas id="ch-grp"></canvas></div></div></div>'+
+    '<div class="card"><div class="card-h"><span class="card-t">⚥ Male / female · <span class="my">အထီး / အမ</span></span></div><div class="card-b"><div class="chart-box"><canvas id="ch-sex"></canvas></div></div></div>'+
+    '<div class="card"><div class="card-h"><span class="card-t">🏥 Outcomes · <span class="my">ရလဒ်</span></span></div><div class="card-b"><div class="chart-box"><canvas id="ch-out"></canvas></div></div></div>'+
+    '<div class="card"><div class="card-h"><span class="card-t">🧬 Morphs · <span class="my">အရောင်</span></span></div><div class="card-b">'+topList(S.morph, S.n, 8)+'</div></div>'+
+  '</div>';
+  // area table
+  h+='<div class="card"><div class="card-h"><span class="card-t">📍 Areas · '+rl.l+' · <span class="my">နေရာများ</span></span></div><div class="tbl-wrap"><table class="t"><thead><tr><th>Area<span class="my">နေရာ</span></th><th>Found<span class="my">တွေ့</span></th><th>% of all</th><th>♂</th><th>♀</th><th>Checks with fungus</th><th>Today<span class="my">ယနေ့</span></th><th>Last found<span class="my">နောက်ဆုံး</span></th></tr></thead><tbody>'+
+    A.map(function(a){
+      var f=S.found.filter(function(c){ return c.area===a.id; }), ck=allChecks().filter(function(c){ return c.area===a.id && c.date>=from && c.date<=t; });
+      var last=allCases().filter(function(c){ return c.area===a.id; }).map(function(c){ return c.date; }).sort().pop()||'';
+      var td=done[a.id];
+      return '<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+a.c+';margin-right:5px"></span><b>'+esc(a.name)+'</b></td><td><b>'+f.length+'</b></td><td>'+pct(f.length,S.n)+'%</td>'+
+        '<td>'+f.filter(function(c){ return c.sex==='M'; }).length+'</td><td>'+f.filter(function(c){ return c.sex==='F'; }).length+'</td>'+
+        '<td>'+ck.filter(function(c){ return c.found; }).length+' / '+ck.length+'</td>'+
+        '<td>'+(td ? (td.found ? '<span class="chip r">🍄 '+td.n+' found</span>' : '<span class="chip g">✓ none</span>') : '<span class="chip a">not checked</span>')+'</td><td>'+(last?niceDate(last):'—')+'</td></tr>';
+    }).join('')+'<tr class="tot"><td>Total</td><td>'+S.n+'</td><td>100%</td><td>'+S.M+'</td><td>'+S.F+'</td><td>'+S.checksFound+' / '+S.checks+'</td><td>'+checked+' / '+A.length+' checked</td><td></td></tr></tbody></table></div></div>';
+  // top tubs
+  h+='<div class="card"><div class="card-h"><span class="card-t">🔁 Tubs / cages with the most fungus · '+rl.l+' · <span class="my">မှိုအများဆုံး နေရာ</span></span></div><div class="card-b">'+topList(S.loc, S.n, 10)+'</div></div>';
+  el.innerHTML=h;
+  drawCharts(S);
+}
+function partBars(S){
+  var rows=PARTS.map(function(p){ return {p:p, n:S.parts[p.k]||0}; }).sort(function(a,b){ return b.n-a.n; });
+  var mx=Math.max.apply(null, rows.map(function(r){ return r.n; }).concat([1]));
+  return rows.map(function(r){ return '<div class="pbar"><span><b style="text-align:left">'+esc(r.p.en)+'</b><span class="my" style="display:block">'+esc(r.p.my)+'</span></span><div class="bar"><i style="width:'+(r.n/mx*100)+'%"></i></div><b>'+r.n+' · '+pct(r.n,S.n)+'%</b></div>'; }).join('')+
+    '<div class="note" style="margin-top:6px">One animal can have fungus in more than one place, so the % can add up to more than 100.</div>';
+}
+function topList(map, total, n){
+  var a=Object.keys(map).map(function(k){ return {k:k, n:map[k]}; }).sort(function(x,y){ return y.n-x.n; }).slice(0,n);
+  if(!a.length) return '<div class="empty">Nothing yet · မရှိသေး</div>';
+  var mx=a[0].n;
+  return a.map(function(x){ return '<div class="pbar"><b style="text-align:left">'+esc(x.k)+'</b><div class="bar"><i style="width:'+(x.n/mx*100)+'%;background:#7c3aed"></i></div><b>'+x.n+' · '+pct(x.n,total)+'%</b></div>'; }).join('');
+}
+function drawCharts(S){
+  if(typeof Chart==='undefined') return;
+  Object.keys(charts).forEach(function(k){ try{ charts[k].destroy(); }catch(e){} }); charts={};
+  function mk(id, cfg){ var c=document.getElementById(id); if(c) charts[id]=new Chart(c, cfg); }
+  var base={responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:12, font:{size:11}}}}};
+  mk('ch-series', {data:{labels:S.series.map(function(b){ return b.l; }), datasets:[
+    {type:'bar', label:'Found · တွေ့', data:S.series.map(function(b){ return b.f; }), backgroundColor:'#e02424', borderRadius:4},
+    {type:'bar', label:'Recovered · ပျောက်ကင်း', data:S.series.map(function(b){ return b.r; }), backgroundColor:'#16a34a', borderRadius:4},
+    {type:'bar', label:'Died · သေ', data:S.series.map(function(b){ return b.d; }), backgroundColor:'#64748b', borderRadius:4},
+    {type:'line', label:'In holding area · ခွဲထား', data:S.series.map(function(b){ return b.h; }), borderColor:'#7c3aed', backgroundColor:'#7c3aed', tension:.3, pointRadius:2, yAxisID:'y'}
+  ]}, options:Object.assign({}, base, {scales:{y:{beginAtZero:true, ticks:{precision:0}}}})});
+  var A=areas();
+  mk('ch-area', {type:'bar', data:{labels:A.map(function(a){ return a.name.replace(' Room','').replace(' (rows 6–23)','').replace(' (rows 29–46)',''); }), datasets:[{label:'Found', data:A.map(function(a){ return S.area[a.id]||0; }), backgroundColor:A.map(function(a){ return a.c; }), borderRadius:5}]},
+    options:Object.assign({}, base, {indexAxis:'y', plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){ return c.raw+' · '+pct(c.raw,S.n)+'%'; }}}}, scales:{x:{beginAtZero:true, ticks:{precision:0}}}})});
+  var G=GROUPS.filter(function(g){ return S.grp[g]; });
+  mk('ch-grp', {type:'bar', data:{labels:G, datasets:[{label:'Found', data:G.map(function(g){ return S.grp[g]; }), backgroundColor:G.map(function(g){ return GROUP_COLORS[g]; }), borderRadius:5}]},
+    options:Object.assign({}, base, {plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){ return c.raw+' · '+pct(c.raw,S.n)+'%'; }}}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}})});
+  mk('ch-sex', {type:'doughnut', data:{labels:['♂ Male '+pct(S.M,S.n)+'%','♀ Female '+pct(S.F,S.n)+'%','? Unknown '+pct(S.U,S.n)+'%'], datasets:[{data:[S.M,S.F,S.U], backgroundColor:['#1877f2','#d6336c','#9ca3af']}]}, options:base});
+  var H=holding().length, R=S.rec.length, D=S.died.length, tot=H+R+D;
+  mk('ch-out', {type:'doughnut', data:{labels:['In holding now '+pct(H,tot)+'%','Recovered '+pct(R,tot)+'%','Died '+pct(D,tot)+'%'], datasets:[{data:[H,R,D], backgroundColor:['#7c3aed','#16a34a','#475569']}]}, options:base});
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ✅ DAILY CHECK — every area every day: found or not
+// ══════════════════════════════════════════════════════════════════
+function newAnimal(prev){ return {loc:'', aid:'', sex:'', w:'', grp: prev ? prev.grp : '', morph: prev ? prev.morph : '', parts:[], notes:''}; }
+function renderCheck(){
+  var el=document.getElementById('page-check'); if(!chkDate) chkDate=todayStr(); var d=chkDate;
+  var A=areas(), K={}; allChecks().forEach(function(c){ if(c.date===d) K[c.area]=c; });
+  var cs=allCases().filter(function(c){ return c.date===d; });
+  var checked=A.filter(function(a){ return K[a.id]; }).length;
+  var h='<div class="card"><div class="card-b topbar">'+empField()+
+    '<div><span class="lbl">Date · <span class="my">ရက်စွဲ</span></span><div class="datebox"><button class="btn" onclick="chkDate=addDays(chkDate,-1);renderCheck()">‹</button><input class="in" type="date" value="'+d+'" onchange="chkDate=this.value;renderCheck()"><button class="btn" onclick="chkDate=addDays(chkDate,1);renderCheck()">›</button>'+
+    '<button class="btn sm" onclick="chkDate=todayStr();renderCheck()">Today<br><span class="my">ယနေ့</span></button></div></div></div></div>'+
+    '<div class="strip">'+stat(checked+' / '+A.length,'Areas checked · <span class="my">စစ်ပြီး နေရာ</span>', checked>=A.length?'#1a7f37':'#e8590c')+
+      stat(cs.length,'Animals with fungus · <span class="my">မှိုတွေ့ကောင်</span>', cs.length?'#c00':'#1a7f37')+
+      stat(A.length-checked,'Not checked yet · <span class="my">မစစ်ရသေး</span>', A.length-checked?'#e8590c':'#1a7f37')+'</div>';
+  if(A.length-checked) h+='<div style="margin-bottom:10px;text-align:right"><button class="btn grn" onclick="allNone()">✓ Mark every unchecked area "Not found" · <span class="my">ကျန်နေရာများ မတွေ့ပါ</span></button></div>';
+  h+='<div class="areas">'+A.map(function(a){ return areaCard(a, K[a.id], cs.filter(function(c){ return c.area===a.id; }), d); }).join('')+'</div>';
+  el.innerHTML=h;
+  buildLocList();
+}
+function areaCard(a, chk, saved, d){
+  var key=d+'|'+a.id, dr=DRAFT[key], open = dr && dr.length;
+  var cls = chk ? (chk.found ? 'found' : 'none') : '';
+  var h='<div class="area '+cls+(open?' open':'')+'"><div class="area-h"><span style="width:12px;height:36px;border-radius:4px;background:'+a.c+'"></span><div><div class="nm">'+esc(a.name)+'</div><div class="my">'+esc(a.my)+'</div></div><span class="sp"></span>'+
+    (chk ? (chk.found ? '<span class="chip r">🍄 '+saved.length+' found</span>' : '<span class="chip g">✓ Not found</span>')+'<div class="note" style="width:100%;text-align:right">'+esc(chk.emp||'')+' · '+esc(chk.time||'')+'</div>' : '<span class="chip a">Not checked · မစစ်ရသေး</span>')+'</div><div class="area-b">';
+  h+='<div class="yn"><button class="no'+(chk&&!chk.found&&!open?' on':'')+'" onclick="markNone(\''+a.id+'\')">✓ Not found<span class="my">မှို မတွေ့ပါ</span></button>'+
+    '<button class="yes'+((chk&&chk.found)||open?' on':'')+'" onclick="startFound(\''+a.id+'\')">🍄 Found fungus<span class="my">မှို တွေ့သည်</span></button></div>';
+  saved.forEach(function(c){
+    h+='<div class="animal" style="cursor:pointer;background:#fff" onclick="openCase(\''+c.id+'\')"><div class="animal-h">'+sexIc(c.sex)+' '+esc(c.loc||'—')+(c.aid?' · #'+esc(c.aid):'')+'<span class="sp"></span><span class="chip">'+esc(c.grp||'—')+'</span>'+(c.w?'<span class="chip">'+esc(c.w)+' g</span>':'')+'<span class="note">✏️</span></div>'+
+      '<div class="note">'+(c.parts||[]).map(function(p){ return part(p).en; }).join(', ')+(c.morph?' · '+esc(c.morph):'')+'</div></div>';
+  });
+  if(open){
+    h+='<datalist id="loc-'+a.id+'">'+a.locs.map(function(l){ return '<option value="'+esc(l)+'">'; }).join('')+'</datalist>';
+    h+='<div class="animals">'; dr.forEach(function(x,i){ h+=animalForm(key, a, x, i); }); h+='</div>';
+    h+='<div class="savebar"><button class="btn" onclick="addAnimal(\''+key+'\')">＋ Another animal · <span class="my">နောက်တစ်ကောင်</span></button>'+
+      '<span class="note">or</span><input class="in" type="number" min="1" max="50" id="n-'+a.id+'" placeholder="how many" style="width:100px"><button class="btn sm" onclick="addMany(\''+key+'\',\''+a.id+'\')">＋ Add</button></div>'+
+      '<div class="savebar"><button class="btn" onclick="cancelDraft(\''+key+'\')">Cancel · <span class="my">မလုပ်တော့</span></button><button class="btn grn" onclick="saveArea(\''+a.id+'\')">💾 Save '+dr.length+' animal'+(dr.length>1?'s':'')+' · <span class="my">သိမ်းရန်</span></button></div>';
+  } else if(chk && chk.found) h+='<div class="savebar"><button class="btn sm" onclick="startFound(\''+a.id+'\')">＋ Add more animals · <span class="my">ထပ်ထည့်ရန်</span></button></div>';
+  return h+'</div></div>';
+}
+function animalForm(key, a, x, i){
+  var p='\''+key+'\','+i;
+  return '<div class="animal"><div class="animal-h">🦎 Animal '+(i+1)+' · <span class="my">တိရစ္ဆာန် '+(i+1)+'</span><span class="sp"></span><button class="x" style="width:28px;height:28px" onclick="delAnimal('+p+')">✕</button></div>'+
+    '<div class="g2"><div><span class="lbl">Tub / cage · <span class="my">နေရာ</span></span><input class="in" list="loc-'+a.id+'" value="'+esc(x.loc)+'" placeholder="'+esc((a.locs[0]||'type')+'…')+'" oninput="setA('+p+',\'loc\',this.value)">'+
+      '</div>'+
+    '<div><span class="lbl">Animal ID (optional) · <span class="my">နံပါတ်</span></span><input class="in" inputmode="numeric" maxlength="6" value="'+esc(x.aid)+'" placeholder="6 digits" oninput="setA('+p+',\'aid\',this.value)"></div></div>'+
+    '<div class="g3" style="margin-top:8px"><div><span class="lbl">Sex · <span class="my">အထီး/အမ</span></span><div class="seg">'+
+      [['M','♂ Male','အထီး'],['F','♀ Female','အမ'],['','?','မသိ']].map(function(s){ return '<button class="'+(x.sex===s[0]?'on':'')+'" onclick="setA('+p+',\'sex\',\''+s[0]+'\',1)">'+s[1]+'<span class="my">'+s[2]+'</span></button>'; }).join('')+'</div></div>'+
+    '<div><span class="lbl">Weight (g) · <span class="my">အလေးချိန် (ဂရမ်)</span></span><input class="in" type="number" inputmode="decimal" min="0" value="'+esc(x.w)+'" placeholder="g" oninput="setA('+p+',\'w\',this.value)"></div>'+
+    '<div><span class="lbl">Group · <span class="my">အုပ်စု</span></span><select class="in" onchange="setA('+p+',\'grp\',this.value)"><option value="">—</option>'+GROUPS.map(function(g){ return '<option'+(x.grp===g?' selected':'')+'>'+g+'</option>'; }).join('')+'</select></div></div>'+
+    '<div style="margin-top:8px"><span class="lbl">Morph · <span class="my">အရောင်</span></span>'+morphBox(x.morph,'pickA('+p+')')+'</div>'+
+    '<span class="lbl" style="margin-top:8px">Where is the fungus? (tick all) · <span class="my">မှို ဘယ်နေရာမှာ ရှိသလဲ</span></span><div class="parts">'+
+      PARTS.map(function(q){ var on=x.parts.indexOf(q.k)>=0; return '<label class="part'+(on?' on':'')+'"><input type="checkbox"'+(on?' checked':'')+' onchange="togPart('+p+',\''+q.k+'\')"><span>'+q.en+'<span class="my">'+q.my+'</span></span></label>'; }).join('')+'</div>'+
+    '<input class="in" style="margin-top:8px" value="'+esc(x.notes)+'" placeholder="Notes · မှတ်ချက်" oninput="setA('+p+',\'notes\',this.value)"></div>';
+}
+function setA(key,i,k,v,rerender){ DRAFT[key][i][k]=v; persistDraft(); if(rerender) renderCheck(); }
+function togPart(key,i,k){ var a=DRAFT[key][i].parts, j=a.indexOf(k); if(j>=0) a.splice(j,1); else a.push(k); persistDraft(); renderCheck(); }
+function pickA(key,i){ openGenePicker(DRAFT[key][i].morph, function(v){ DRAFT[key][i].morph=v; persistDraft(); renderCheck(); }); }
+function persistDraft(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({DB:DB, PENDING:PENDING, SERVER_TS:SERVER_TS, DRAFT:DRAFT})); }catch(e){} }
+function startFound(id){ var key=chkDate+'|'+id; if(!DRAFT[key] || !DRAFT[key].length) DRAFT[key]=[newAnimal()]; persistDraft(); renderCheck(); }
+function addAnimal(key){ var d=DRAFT[key]; d.push(newAnimal(d[d.length-1])); persistDraft(); renderCheck(); }
+function addMany(key, id){ var n=Math.min(50, Math.round(+document.getElementById('n-'+id).value)||0); if(!n) return; var d=DRAFT[key]; for(var i=0;i<n;i++) d.push(newAnimal(d[d.length-1])); persistDraft(); renderCheck(); }
+function delAnimal(key,i){ DRAFT[key].splice(i,1); if(!DRAFT[key].length) delete DRAFT[key]; persistDraft(); renderCheck(); }
+function cancelDraft(key){ if(!confirm('Throw away these animals (not saved)? · မသိမ်းဘဲ ဖျက်မလား?')) return; delete DRAFT[key]; persistDraft(); renderCheck(); }
+function markNone(id){
+  var n=needEmp(); if(!n) return;
+  var d=chkDate, has=allCases().filter(function(c){ return c.date===d && c.area===id; }).length;
+  if(has){ showToast('This area already has '+has+' animal(s) saved today · ယနေ့ တွေ့ပြီးသား','err'); return; }
+  if(DRAFT[d+'|'+id] && DRAFT[d+'|'+id].length && !confirm('Throw away the animals you typed? · ဖျက်မလား?')) return;
+  delete DRAFT[d+'|'+id];
+  saveRecord('check', {id:d+'|'+id, date:d, area:id, found:false, n:0, emp:n, time:nowHM()});
+  showToast('✓ '+area(id).name+': not found · မတွေ့ပါ','ok'); renderCheck(); updBadges();
+}
+function allNone(){
+  var n=needEmp(); if(!n) return;
+  var d=chkDate, done={}; allChecks().forEach(function(c){ if(c.date===d) done[c.area]=1; });
+  var left=areas().filter(function(a){ return !done[a.id] && !(DRAFT[d+'|'+a.id]||[]).length; });
+  if(!left.length) return;
+  if(!confirm('Mark '+left.length+' area(s) as "Not found"?\n'+left.map(function(a){ return '• '+a.name; }).join('\n'))) return;
+  left.forEach(function(a){ saveRecord('check', {id:d+'|'+a.id, date:d, area:a.id, found:false, n:0, emp:n, time:nowHM()}); });
+  showToast('✓ '+left.length+' areas: not found','ok'); renderCheck(); updBadges();
+}
+function saveArea(id){
+  var n=needEmp(); if(!n) return;
+  var d=chkDate, key=d+'|'+id, dr=DRAFT[key]||[];
+  for(var i=0;i<dr.length;i++){
+    if(!dr[i].parts.length){ showToast('Animal '+(i+1)+': tick where the fungus is · မှိုနေရာ ရွေးပါ','err'); return; }
+    if(dr[i].aid && !/^\d{1,6}$/.test(dr[i].aid)){ showToast('Animal '+(i+1)+': ID must be numbers · နံပါတ်','err'); return; }
+  }
+  var noW=dr.filter(function(x){ return !num(x.w); }).length;
+  if(noW && !confirm(noW+' animal(s) have no weight. Save anyway? · အလေးချိန် မထည့်ရသေး')) return;
+  var t=nowHM();
+  dr.forEach(function(x){
+    saveRecord('case', {id:uid('F'), date:d, time:t, area:id, loc:(x.loc||'').trim().toUpperCase(), aid:x.aid?String(x.aid).padStart(6,'0'):'', sex:x.sex, w:x.w===''?'':num(x.w),
+      grp:x.grp, morph:x.morph, parts:x.parts.slice(), notes:x.notes, emp:n, st:'hold', fu:[], outD:'', outLoc:''});
+  });
+  var total=allCases().filter(function(c){ return c.date===d && c.area===id; }).length;
+  saveRecord('check', {id:key, date:d, area:id, found:true, n:total, emp:n, time:t});
+  delete DRAFT[key]; persistDraft();
+  showToast('✅ Saved '+dr.length+' animal'+(dr.length>1?'s':'')+' — moved to '+holdName()+' · သိမ်းပြီး','ok'); renderCheck(); updBadges();
+}
+function buildLocList(){}
+
+// ══════════════════════════════════════════════════════════════════
+// 🏥 HOLDING AREA — daily follow-up until recovered or died
+// ══════════════════════════════════════════════════════════════════
+var holdSort='old';
+function renderHold(){
+  var el=document.getElementById('page-hold'), t=todayStr(), H=holding();
+  H.sort(function(a,b){ return holdSort==='old' ? (a.date<b.date?-1:a.date>b.date?1:0) : (a.area<b.area?-1:a.area>b.area?1:0); });
+  var chkd=H.filter(function(c){ return fuOn(c,t); }).length;
+  var bt=H.filter(function(c){ var f=lastFu(c); return f && f.s==='better'; }).length, wr=H.filter(function(c){ var f=lastFu(c); return f && f.s==='worse'; }).length;
+  var wk=addDays(t,-6), C=allCases();
+  var rec7=C.filter(function(c){ return c.st==='rec' && c.outD>=wk; }).length, died7=C.filter(function(c){ return c.st==='died' && c.outD>=wk; }).length;
+  var h='<div class="card"><div class="card-b topbar">'+empField()+
+    '<div><span class="lbl">Sort · <span class="my">စီရန်</span></span><div class="seg"><button class="'+(holdSort==='old'?'on':'')+'" onclick="holdSort=\'old\';renderHold()">Longest first<span class="my">အကြာဆုံး</span></button><button class="'+(holdSort==='area'?'on':'')+'" onclick="holdSort=\'area\';renderHold()">By area<span class="my">နေရာ</span></button></div></div>'+
+    (H.length-chkd ? '<button class="btn" onclick="allSame()">➖ Mark the rest "Same" today<br><span class="my">ကျန်သည့်ကောင်များ အတူတူ</span></button>' : '')+'</div></div>'+
+    '<div class="strip">'+stat(H.length,'In '+esc(holdName())+' · <span class="my">ခွဲထားသည်</span>','#7c3aed')+stat(chkd+' / '+H.length,'Checked today · <span class="my">ယနေ့ စစ်ပြီး</span>', chkd>=H.length?'#1a7f37':'#e8590c')+
+      stat(bt,'Getting better · <span class="my">သက်သာလာ</span>','#1a7f37')+stat(wr,'Getting worse · <span class="my">ဆိုးလာ</span>', wr?'#c00':'')+
+      stat(rec7,'Recovered · 7 days · <span class="my">ပျောက်ကင်း</span>','#0891b2')+stat(died7,'Died · 7 days · <span class="my">သေဆုံး</span>', died7?'#475569':'')+'</div>';
+  if(!H.length) h+='<div class="card"><div class="empty">✅ No animals in the holding area. · ခွဲထားသည့် တိရစ္ဆာန် မရှိပါ</div></div>';
+  else h+='<div class="hold">'+H.map(function(c){ return holdCard(c,t); }).join('')+'</div>';
+  el.innerHTML=h;
+}
+function holdCard(c, t){
+  var f=fuOn(c,t), lf=lastFu(c), cls=lf?lf.s:'';
+  var hist=(c.fu||[]).slice().sort(function(a,b){ return a.d<b.d?-1:1; }).slice(-10);
+  return '<div class="hcard '+cls+'"><div class="hcard-h"><b>'+sexIc(c.sex)+' '+esc(c.loc||area(c.area).name)+'</b>'+(c.aid?'<span class="chip">#'+esc(c.aid)+'</span>':'')+
+      '<span class="chip">'+esc(c.grp||'—')+'</span>'+(c.w?'<span class="chip">'+esc(c.w)+' g</span>':'')+'<span class="sp"></span><span class="chip b">Day '+(daysIn(c)+1)+'</span></div>'+
+    '<div class="note">Found '+niceDate(c.date)+' in <b>'+esc(area(c.area).name)+'</b> by '+esc(c.emp||'—')+(c.morph?' · '+esc(c.morph):'')+'</div>'+
+    '<div class="chips">'+(c.parts||[]).map(function(p){ return '<span class="chip r">'+esc(part(p).en)+'</span>'; }).join('')+'</div>'+
+    (hist.length ? '<div class="fu">'+hist.map(function(x){ return '<i style="background:'+FU[x.s].c+'" title="'+x.d+' '+FU[x.s].en+(x.by?' · '+esc(x.by):'')+'">'+x.d.slice(8)+' '+FU[x.s].en+'</i>'; }).join('')+'</div>' : '')+
+    '<div><span class="lbl">Today · <span class="my">ယနေ့</span></span><div class="seg">'+
+      ['better','same','worse'].map(function(s){ return '<button class="'+(f&&f.s===s?'on '+(s==='better'?'g':s==='worse'?'r':'a'):'')+'" onclick="setFu(\''+c.id+'\',\''+s+'\')">'+FU[s].ic+' '+FU[s].en+'<span class="my">'+FU[s].my+'</span></button>'; }).join('')+'</div></div>'+
+    '<div class="seg"><button onclick="outcome(\''+c.id+'\',\'rec\')" style="color:#0e7490">✅ Recovered · returned<span class="my">ပျောက်ကင်း · ပြန်ထား</span></button><button onclick="outcome(\''+c.id+'\',\'died\')" style="color:#475569">💀 Died<span class="my">သေဆုံး</span></button>'+
+      '<button onclick="openCase(\''+c.id+'\')" style="flex:0 0 60px">✏️<span class="my">ပြင်</span></button></div></div>';
+}
+function setFu(id, s){
+  var n=needEmp(); if(!n) return;
+  var c=clone(DB.case[id]||allCases().filter(function(x){ return x.id===id; })[0]); var t=todayStr();
+  c.fu=(c.fu||[]).filter(function(f){ return f.d!==t; }); c.fu.push({d:t, s:s, by:n, at:nowHM()});
+  saveRecord('case', c); renderHold(); updBadges();
+}
+function allSame(){
+  var n=needEmp(); if(!n) return; var t=todayStr();
+  var left=holding().filter(function(c){ return !fuOn(c,t); });
+  if(!confirm('Mark '+left.length+' animal(s) as "Same" today? · အတူတူ ဟု မှတ်မလား?')) return;
+  left.forEach(function(c0){ var c=clone(c0); c.fu=(c.fu||[]); c.fu.push({d:t, s:'same', by:n, at:nowHM()}); saveRecord('case', c); });
+  renderHold();
+}
+function outcome(id, st){
+  var n=needEmp(); if(!n) return;
+  var c=clone(DB.case[id]||allCases().filter(function(x){ return x.id===id; })[0]);
+  var msg = st==='rec' ? 'Recovered — put back where? (tub / cage) · ဘယ်နေရာ ပြန်ထားမလဲ' : 'Died — note (optional) · မှတ်ချက်';
+  var v=prompt(msg, st==='rec' ? (c.loc||'') : ''); if(v===null) return;
+  c.st=st; c.outD=todayStr(); c.outBy=n;
+  if(st==='rec') c.outLoc=v.trim().toUpperCase(); else c.outNote=v.trim();
+  saveRecord('case', c); showToast(st==='rec'?'✅ Recovered · ပျောက်ကင်း':'💀 Died · သေဆုံး','ok'); renderHold(); updBadges();
+}
+
+// ── ANIMAL EDITOR (fix any record) ──
+function openCase(id){
+  var c=DB.case[id]||allCases().filter(function(x){ return x.id===id; })[0]; if(!c) return;
+  EDIT=clone(c); EDIT.parts=EDIT.parts||[]; document.getElementById('case-ov').classList.add('open'); renderCase();
+}
+function closeCase(){ document.getElementById('case-ov').classList.remove('open'); EDIT=null; refresh(); }
+function setE(k,v,rr){ EDIT[k]=v; if(rr) renderCase(); }
+function renderCase(){
+  var e=EDIT, a=area(e.area);
+  document.getElementById('case-title').innerHTML='✏️ '+sexIc(e.sex)+' '+esc(e.loc||a.name)+'<div class="my" style="font-size:12px">Found '+niceDate(e.date)+' · '+esc(a.name)+'</div>';
+  document.getElementById('case-body').innerHTML=
+    '<div class="g3"><div><span class="lbl">Date found · <span class="my">တွေ့သည့်ရက်</span></span><input class="in" type="date" value="'+e.date+'" onchange="setE(\'date\',this.value)"></div>'+
+    '<div><span class="lbl">Area · <span class="my">နေရာ</span></span><select class="in" onchange="setE(\'area\',this.value,1)">'+areas().map(function(x){ return '<option value="'+x.id+'"'+(x.id===e.area?' selected':'')+'>'+esc(x.name)+'</option>'; }).join('')+'</select></div>'+
+    '<div><span class="lbl">Tub / cage · <span class="my">နေရာ</span></span><input class="in" list="loc-e" value="'+esc(e.loc||'')+'" oninput="setE(\'loc\',this.value.toUpperCase())"><datalist id="loc-e">'+a.locs.map(function(l){ return '<option value="'+esc(l)+'">'; }).join('')+'</datalist></div></div>'+
+    '<div class="g4" style="margin-top:8px"><div><span class="lbl">Sex</span><div class="seg">'+[['M','♂'],['F','♀'],['','?']].map(function(s){ return '<button class="'+(e.sex===s[0]?'on':'')+'" onclick="setE(\'sex\',\''+s[0]+'\',1)">'+s[1]+'</button>'; }).join('')+'</div></div>'+
+    '<div><span class="lbl">Weight g</span><input class="in" type="number" value="'+esc(e.w)+'" oninput="setE(\'w\',this.value===\'\'?\'\':+this.value)"></div>'+
+    '<div><span class="lbl">Group</span><select class="in" onchange="setE(\'grp\',this.value)"><option value="">—</option>'+GROUPS.map(function(g){ return '<option'+(e.grp===g?' selected':'')+'>'+g+'</option>'; }).join('')+'</select></div>'+
+    '<div><span class="lbl">Animal ID</span><input class="in" maxlength="6" value="'+esc(e.aid||'')+'" oninput="setE(\'aid\',this.value)"></div></div>'+
+    '<div style="margin-top:8px"><span class="lbl">Morph · <span class="my">အရောင်</span></span>'+morphBox(e.morph,'openGenePicker(EDIT.morph,function(v){ EDIT.morph=v; renderCase(); })')+'</div>'+
+    '<span class="lbl" style="margin-top:8px">Where is the fungus · <span class="my">မှိုနေရာ</span></span><div class="parts">'+
+      PARTS.map(function(q){ var on=e.parts.indexOf(q.k)>=0; return '<label class="part'+(on?' on':'')+'"><input type="checkbox"'+(on?' checked':'')+' onchange="var a=EDIT.parts,j=a.indexOf(\''+q.k+'\');if(j>=0)a.splice(j,1);else a.push(\''+q.k+'\');renderCase()"><span>'+q.en+'<span class="my">'+q.my+'</span></span></label>'; }).join('')+'</div>'+
+    '<div class="g2" style="margin-top:8px"><div><span class="lbl">Status · <span class="my">အခြေအနေ</span></span><div class="seg">'+
+      [['hold','🏥 In holding','ခွဲထား'],['rec','✅ Recovered','ပျောက်ကင်း'],['died','💀 Died','သေဆုံး']].map(function(s){ return '<button class="'+(e.st===s[0]?'on':'')+'" onclick="EDIT.st=\''+s[0]+'\';if(EDIT.st!==\'hold\'&&!EDIT.outD)EDIT.outD=todayStr();renderCase()">'+s[1]+'<span class="my">'+s[2]+'</span></button>'; }).join('')+'</div></div>'+
+    (e.st!=='hold' ? '<div><span class="lbl">'+(e.st==='rec'?'Recovered on':'Died on')+'</span><input class="in" type="date" value="'+(e.outD||'')+'" onchange="setE(\'outD\',this.value)"></div>' : '<div></div>')+'</div>'+
+    (e.st==='rec' ? '<div style="margin-top:8px"><span class="lbl">Returned to · <span class="my">ပြန်ထားသည့်နေရာ</span></span><input class="in" value="'+esc(e.outLoc||'')+'" oninput="setE(\'outLoc\',this.value.toUpperCase())"></div>' : '')+
+    '<div style="margin-top:8px"><span class="lbl">Notes · <span class="my">မှတ်ချက်</span></span><input class="in" value="'+esc(e.notes||'')+'" oninput="setE(\'notes\',this.value)"></div>'+
+    ((e.fu||[]).length ? '<div class="note" style="margin-top:8px">Follow-ups: '+(e.fu||[]).slice().sort(function(a,b){ return a.d<b.d?-1:1; }).map(function(f){ return f.d.slice(5)+' '+FU[f.s].en+(f.by?' ('+esc(f.by)+')':''); }).join(' · ')+'</div>' : '');
+}
+function saveCaseEdit(){
+  if(!EDIT.parts.length){ showToast('Tick where the fungus is · မှိုနေရာ ရွေးပါ','err'); return; }
+  if(EDIT.st==='hold'){ EDIT.outD=''; }
+  var o=clone(EDIT); saveRecord('case', o); showToast('✅ Saved · သိမ်းပြီး','ok'); closeCase();
+}
+function deleteCase(){
+  if(!confirm('Delete this animal record? · ဖျက်မလား?')) return;
+  var o=clone(EDIT); o.deleted=true; saveRecord('case', o);
+  var key=o.date+'|'+o.area, ck=DB.check[key];
+  if(ck){ var n=allCases().filter(function(c){ return c.date===o.date && c.area===o.area; }).length; var c2=clone(ck); c2.n=n; c2.found=n>0; saveRecord('check', c2); }
+  closeCase(); showToast('🗑 Deleted · ဖျက်ပြီး','ok');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// 🕐 HISTORY — every animal found, with outcome
+// ══════════════════════════════════════════════════════════════════
+function histRows(){
+  var f=histF;
+  return allCases().filter(function(c){
+    if(c.date<f.from || c.date>f.to) return false;
+    if(f.area!=='all' && c.area!==f.area) return false;
+    if(f.st!=='all' && c.st!==f.st) return false;
+    return true;
+  }).sort(function(a,b){ return (b.date+(b.time||'')).localeCompare(a.date+(a.time||'')); });
+}
+function renderHist(){
+  var el=document.getElementById('page-hist'), t=todayStr();
+  if(!histF.from){ histF.from=addDays(t,-29); histF.to=t; }
+  var rows=histRows(), f=histF;
+  var h='<div class="card"><div class="card-b topbar">'+
+    '<div><span class="lbl">From · <span class="my">မှ</span></span><input class="in" type="date" value="'+f.from+'" onchange="histF.from=this.value;renderHist()"></div>'+
+    '<div><span class="lbl">To · <span class="my">အထိ</span></span><input class="in" type="date" value="'+f.to+'" onchange="histF.to=this.value;renderHist()"></div>'+
+    '<div><span class="lbl">Area · <span class="my">နေရာ</span></span><select class="in" onchange="histF.area=this.value;renderHist()"><option value="all">All areas · အားလုံး</option>'+areas().map(function(a){ return '<option value="'+a.id+'"'+(f.area===a.id?' selected':'')+'>'+esc(a.name)+'</option>'; }).join('')+'</select></div>'+
+    '<div><span class="lbl">Status · <span class="my">အခြေအနေ</span></span><select class="in" onchange="histF.st=this.value;renderHist()">'+[['all','All'],['hold','In holding'],['rec','Recovered'],['died','Died']].map(function(o){ return '<option value="'+o[0]+'"'+(f.st===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')+'</select></div>'+
+    '<span class="sp"></span>'+(SHEET_URL?'<button class="btn" onclick="loadOld()">☁️ Load from Sheet · <span class="my">ဆွဲယူရန်</span></button>':'')+'<button class="btn grn" onclick="exportCSV()">⬇ CSV</button></div></div>';
+  h+='<div class="card">'+(rows.length ? '<div class="tbl-wrap"><table class="t"><thead><tr><th>Found<span class="my">ရက်</span></th><th>Area<span class="my">နေရာ</span></th><th>Tub/cage</th><th>ID</th><th>Sex</th><th>Weight</th><th>Group</th><th style="text-align:left">Morph</th><th style="text-align:left">Fungus on<span class="my">မှိုနေရာ</span></th><th>Status<span class="my">အခြေအနေ</span></th><th>Days</th><th>By</th></tr></thead><tbody>'+
+    rows.map(function(c){
+      var st = c.st==='hold' ? '<span class="chip b">🏥 holding</span>' : c.st==='rec' ? '<span class="chip g">✅ '+niceDate(c.outD)+'</span>' : '<span class="chip">💀 '+niceDate(c.outD)+'</span>';
+      return '<tr style="cursor:pointer" onclick="openCase(\''+c.id+'\')"><td>'+niceDate(c.date)+'</td><td>'+esc(area(c.area).name)+'</td><td><b>'+esc(c.loc||'—')+'</b></td><td>'+esc(c.aid||'')+'</td><td>'+sexIc(c.sex)+'</td><td>'+(c.w?esc(c.w)+' g':'—')+'</td><td>'+esc(c.grp||'—')+'</td>'+
+        '<td style="text-align:left">'+esc(c.morph||'')+'</td><td style="text-align:left;white-space:normal">'+(c.parts||[]).map(function(p){ return part(p).en; }).join(', ')+'</td><td>'+st+'</td><td>'+(daysIn(c)+1)+'</td><td>'+esc(c.emp||'')+'</td></tr>';
+    }).join('')+'</tbody></table></div>' : '<div class="empty">Nothing for these filters. This device keeps '+KEEP_DAYS+' days — press "Load from Sheet" for older dates. · မရှိပါ</div>')+'</div>';
+  el.innerHTML=h;
+}
+function loadOld(){
+  showToast('Loading… · ဆွဲယူနေ');
+  api({action:'list', from:histF.from, to:histF.to}).then(function(res){
+    var old=EXTRA||{from:histF.from, case:[], check:[]};
+    var m={}; old.case.concat(res.case||[]).forEach(function(o){ m[o.id]=o; }); old.case=Object.keys(m).map(function(k){ return m[k]; });
+    var k={}; old.check.concat(res.check||[]).forEach(function(o){ k[o.id]=o; }); old.check=Object.keys(k).map(function(x){ return k[x]; });
+    if(histF.from<old.from) old.from=histF.from; EXTRA=old; renderHist(); showToast('✅ Loaded · ပြီးပါပြီ','ok');
+  }).catch(function(e){ showToast('⚠️ '+e.message,'err'); });
+}
+function exportCSV(){
+  var rows=[['Date found','Time','Area','Tub/cage','Animal ID','Sex','Weight g','Group','Morph'].concat(PARTS.map(function(p){ return p.en; })).concat(['Status','Outcome date','Returned to','Days','Follow-ups','Employee','Notes'])];
+  histRows().slice().reverse().forEach(function(c){
+    rows.push([c.date,c.time,area(c.area).name,c.loc,c.aid,c.sex,c.w,c.grp,c.morph].concat(PARTS.map(function(p){ return (c.parts||[]).indexOf(p.k)>=0?1:''; }))
+      .concat([{hold:'In holding',rec:'Recovered',died:'Died'}[c.st]||'', c.outD, c.outLoc, daysIn(c)+1, (c.fu||[]).map(function(f){ return f.d+' '+f.s; }).join('; '), c.emp, c.notes]));
+  });
+  var csv=rows.map(function(r){ return r.map(function(v){ return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'})); a.download='Fungus_BD_SRR2_'+histF.from+'_'+histF.to+'.csv'; a.click();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ⚙️ SETUP — areas to check daily, staff names, holding area name
+// ══════════════════════════════════════════════════════════════════
+function renderSetup(){
+  var el=document.getElementById('page-setup'), s=settings(), hidden=s.hidden||[];
+  el.innerHTML='<div class="g2 stack" style="align-items:start"><div class="card"><div class="card-h"><span class="card-t">📍 Areas checked every day · <span class="my">နေ့စဉ် စစ်ရမည့်နေရာ</span></span></div><div class="card-b">'+
+    '<div class="note" style="margin-bottom:8px">These come from the Animal ID app (INFR# enclosures, white tub rows, FR# cages). Untick an area you don\'t check. · Animal ID app မှ နေရာများ</div>'+
+    BASE_AREAS.map(function(a){ return '<label class="part" style="margin-bottom:4px"><input type="checkbox" class="st-area" value="'+a.id+'"'+(hidden.indexOf(a.id)<0?' checked':'')+'><span>'+esc(a.name)+' <span class="note">('+a.locs.length+' tubs/cages)</span><span class="my">'+esc(a.my)+'</span></span></label>'; }).join('')+
+    '<div class="lbl" style="margin-top:10px">Extra areas (one per line, e.g. Wooden Cage Room) · <span class="my">အခြား နေရာများ</span></div><textarea class="in" id="st-extra" rows="4">'+esc((s.areas||[]).map(function(a){ return a.name; }).join('\n'))+'</textarea></div></div>'+
+    '<div class="card"><div class="card-h"><span class="card-t">⚙️ Settings · <span class="my">ဆက်တင်</span></span></div><div class="card-b">'+
+    '<span class="lbl">Holding area name · <span class="my">ခွဲထားရာနေရာ အမည်</span></span><input class="in" id="st-hold" value="'+esc(holdName())+'">'+
+    '<span class="lbl" style="margin-top:10px">Staff names (one per line) · <span class="my">ဝန်ထမ်း နာမည်များ</span></span><textarea class="in" id="st-emps" rows="6">'+esc((s.emps||[]).join('\n'))+'</textarea>'+
+    '<div style="text-align:right;margin-top:10px"><button class="btn grn" onclick="saveSettings()">💾 Save settings · <span class="my">သိမ်းရန်</span></button></div>'+
+    '<div class="note" style="margin-top:12px">'+(SHEET_URL?'✅ Connected to the Google Sheet':'⚠️ Not connected — paste the /exec link into SHEET_URL')+' · app '+APP_VERSION+' · '+Object.keys(PENDING).length+' waiting to send</div></div></div></div>';
+}
+function saveSettings(){
+  var s=clone(settings()); s.id='main';
+  s.hidden=BASE_AREAS.map(function(a){ return a.id; }).filter(function(id){ var cb=document.querySelector('.st-area[value="'+id+'"]'); return cb && !cb.checked; });
+  var old={}; (s.areas||[]).forEach(function(a){ old[a.name.toLowerCase()]=a; });
+  s.areas=document.getElementById('st-extra').value.split('\n').map(function(x){ return x.trim(); }).filter(String).map(function(n){ return old[n.toLowerCase()] || {id:'X'+n.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12), name:n, my:'', locs:[]}; });
+  s.hold=document.getElementById('st-hold').value.trim()||'Fungus Holding Area';
+  s.emps=document.getElementById('st-emps').value.split('\n').map(function(x){ return x.trim(); }).filter(String);
+  saveRecord('settings', s); showToast('✅ Settings saved · သိမ်းပြီး','ok'); renderSetup(); updBadges();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+function tick(){ var d=new Date(); document.getElementById('clock').textContent=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+nowHM(); }
+document.addEventListener('DOMContentLoaded', function(){
+  loadLocal();
+  var t=localStorage_get('srr_fungus_tab'); if(TABS.indexOf(t)<0) t='dash';
+  showTab(t); tick(); setInterval(tick, 30000);
+  if(!SHEET_URL){ showSetupWarn(); pillState(); }
+  else { pull(); setInterval(function(){ pull(); pushPending(); }, 20000); }
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden && SHEET_URL){ pull(); pushPending(); } });
+  window.addEventListener('online', function(){ if(SHEET_URL){ pull(); pushPending(); } });
+  var day=todayStr();
+  setInterval(function(){ if(todayStr()!==day){ if(chkDate===day) chkDate=todayStr(); day=todayStr(); if(!EDIT) refresh(); } }, 60000);
+});
+</script>
+</body>
+</html>
